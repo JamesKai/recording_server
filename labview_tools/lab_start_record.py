@@ -16,9 +16,14 @@ def do_recording():
         threading.Thread(target=start_server).start()
         time.sleep(1)
         conn = rpyc.connect('localhost', port=18861)
-    finally:
-        # start recording
-        conn.root.start_record()
+    else:
+        # check if it is currently recording
+        if conn.root.status():
+            print('it is already recording')
+            return
+    # start recording
+    conn.root.start_record()
+    print('start recording now')
 
 
 def start_server():
@@ -31,4 +36,4 @@ def start_server():
 if __name__ == '__main__':
     print('running...')
     do_recording()
-    print('start recording now')
+
