@@ -1,7 +1,7 @@
 import rpyc
 
 
-if __name__ == '__main__':
+def stop_recording():
     conn = None
     try:
         conn = rpyc.connect('localhost', port=18861)
@@ -15,3 +15,7 @@ if __name__ == '__main__':
             print('was recording, stop recording now')
     finally:
         print('it is not recording')
+
+
+if __name__ == '__main__':
+    stop_recording()
