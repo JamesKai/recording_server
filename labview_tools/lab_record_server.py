@@ -28,6 +28,9 @@ class RecordingService(rpyc.Service):
     def exposed_get_status(self):
         return 'Recorder is on' if self.status else 'Recorder is off'
 
+    def exposed_status(self):
+        return self.status
+
     def exposed_start_record(self):
         self.status = True
         self.record_th = threading.Thread(target=self.record_process)
@@ -54,7 +57,7 @@ class RecordingService(rpyc.Service):
         # define the codec
         fourcc = cv2.VideoWriter_fourcc(*"DIVX")
         # create the video writer object
-        video_writer = cv2.VideoWriter(r"C:\Users\James\Documents\IAMS\Software Development\screen_recorder\output.avi"
+        video_writer = cv2.VideoWriter(r"C:\Users\James\Documents\IAMS\Software Development\ScreenRecord\output.avi"
                                        , fourcc, self.record_fps, screen_size)
         while self.status:
             # make a screenshot
@@ -67,8 +70,8 @@ class RecordingService(rpyc.Service):
             video_writer.write(frame)
 
         # releasing all the resources after it is stopped
-        cv2.destroyAllWindows()
         video_writer.release()
+        cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
@@ -77,7 +80,7 @@ if __name__ == '__main__':
         rpyc.connect('localhost', port=18861)
         print('server is already on')
         server_already_on = True
-    except:
+    except ConnectionRefusedError:
         print('initial server')
     if not server_already_on:
         # shared the same service instance across multiple request from client
