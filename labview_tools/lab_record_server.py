@@ -66,6 +66,10 @@ class RecordingService(rpyc.Service):
             # write the frame
             video_writer.write(frame)
 
+        # releasing all the resources after it is stopped
+        cv2.destroyAllWindows()
+        video_writer.release()
+
 
 if __name__ == '__main__':
     server_already_on = False
