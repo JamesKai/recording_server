@@ -73,7 +73,7 @@ if __name__ == '__main__':
         rpyc.connect('localhost', port=18861)
         print('server is already on')
         server_already_on = True
-    except:
+    except ConnectionRefusedError:
         print('initially server')
     if not server_already_on:
         # shared the same service instance across multiple request from client

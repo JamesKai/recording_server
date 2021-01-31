@@ -5,7 +5,7 @@ import time
 
 
 # test if the server is running or not
-def do_recording():
+def start_recording():
     # declare connection object ,this is not needed, stating it here as pycharm cannot resolve the issues
     # of pycharm referencing local variable
     conn = None
@@ -35,5 +35,5 @@ def start_server():
 
 if __name__ == '__main__':
     print('running...')
-    do_recording()
+    start_recording()
 
