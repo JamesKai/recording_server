@@ -13,6 +13,8 @@ def stop_recording():
             # start recording
             conn.root.end_record()
             print('was recording, stop recording now')
+        # kill the server after recording is stopped
+        conn.root.set_flag(True)
     finally:
         print('it is not recording')
 

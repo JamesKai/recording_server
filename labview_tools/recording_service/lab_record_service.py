@@ -6,6 +6,7 @@ import numpy as np
 from rpyc.utils.server import ThreadedServer
 
 
+# create custom RecordingService
 class RecordingService(rpyc.Service):
     def __init__(self):
         super(RecordingService, self).__init__()
@@ -14,6 +15,7 @@ class RecordingService(rpyc.Service):
         self.record_th = None
         # default record fps to be 14
         self.record_fps = 14
+        self.shutdown_service_flag: bool = False
 
     def on_connect(self, conn):
         # code that runs when a connection is created
@@ -30,6 +32,12 @@ class RecordingService(rpyc.Service):
 
     def exposed_status(self):
         return self.status
+
+    def exposed_get_flag(self):
+        return self.shutdown_service_flag
+
+    def exposed_set_flag(self, do_shut_down: bool):
+        self.shutdown_service_flag = do_shut_down
 
     def exposed_start_record(self):
         self.status = True
