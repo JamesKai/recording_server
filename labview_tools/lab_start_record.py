@@ -1,10 +1,10 @@
 import rpyc
-from rpyc.utils.server import ThreadedServer
+# from rpyc.utils.server import ThreadedServer
 import threading
 import time
+from labview_tools.closable_server.lab_closable_server import RecordingServer
 
 
-# test if the server is running or not
 def start_recording():
     # declare connection object ,this is not needed, stating it here as pycharm cannot resolve the issues
     # of pycharm referencing local variable
@@ -27,9 +27,9 @@ def start_recording():
 
 
 def start_server():
-    from lab_record_server import RecordingService
+    from labview_tools.recording_service.lab_record_service import RecordingService
     # create server and run the server
-    server = ThreadedServer(RecordingService(), port=18861)
+    server = RecordingServer(RecordingService(), port=18861)
     server.start()
 
 
