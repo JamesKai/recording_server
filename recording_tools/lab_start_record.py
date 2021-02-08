@@ -2,7 +2,7 @@ import rpyc
 # from rpyc.utils.server import ThreadedServer
 import threading
 import time
-from labview_tools.closable_server.lab_closable_server import RecordingServer
+from recording_tools.closable_server.lab_closable_server import RecordingServer
 
 
 def start_recording():
@@ -27,7 +27,7 @@ def start_recording():
 
 
 def start_server():
-    from labview_tools.recording_service.lab_record_service import RecordingService
+    from recording_tools.recording_service.lab_record_service import RecordingService
     # create server and run the server
     server = RecordingServer(RecordingService(), port=18861)
     server.start()

@@ -1,4 +1,4 @@
-from labview_tools import lab_start_record
+from recording_tools import lab_start_record
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
