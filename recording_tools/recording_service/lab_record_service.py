@@ -4,6 +4,9 @@ import rpyc
 import cv2
 import numpy as np
 from rpyc.utils.server import ThreadedServer
+from telegram_tools import telegram_service
+from typing import List
+from telegram import Bot
 
 
 # create custom RecordingService
@@ -16,6 +19,10 @@ class RecordingService(rpyc.Service):
         # default record fps to be 14
         self.record_fps = 14
         self.shutdown_service_flag: bool = False
+
+        # telegram related
+        self.telegram_th = None
+        self.subscribers:List[int] = []
 
     def on_connect(self, conn):
         # code that runs when a connection is created
@@ -43,10 +50,20 @@ class RecordingService(rpyc.Service):
         self.status = True
         self.record_th = threading.Thread(target=self.record_process)
         self.record_th.start()
+        # telegram related
+        self.telegram_th = threading.Thread(target=telegram_service.start_telegram_service)
+        # make it a daemon server
+        self.telegram_th.daemon = True
+        self.telegram_th.start()
 
     def exposed_end_record(self):
+        bot = Bot(token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM')
+        for sub_id in self.subscribers:
+            bot.send_message(chat_id=sub_id, text='end recording')
         self.status = False
         self.record_th.join()
+        # telegram related
+        self.telegram_th.join()
 
     def exposed_set_fps(self, val: int) -> str:
         if self.status:
@@ -58,7 +75,16 @@ class RecordingService(rpyc.Service):
 
     def exposed_get_fps(self) -> int:
         return self.record_fps
-    
+
+    def exposed_add_subscribers(self, subs_id):
+        self.subscribers.append(subs_id)
+
+    def exposed_pop_subscribers(self, subs_id):
+        self.subscribers.remove(subs_id)
+
+    def exposed_get_subscribers(self):
+        return self.subscribers
+
     def record_process(self):
         # display screen resolution, get it from your OS settings
         screen_size = pag.size()

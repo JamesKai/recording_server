@@ -5,7 +5,7 @@ from rpyc.utils.server import ThreadedServer
 from abc import abstractmethod, ABC
 
 # from rpyc.utils.server import ThreadedServer
-from labview_tools.recording_service.lab_record_service import RecordingService
+from recording_tools.recording_service.lab_record_service import RecordingService
 
 
 class Closable(ABC):

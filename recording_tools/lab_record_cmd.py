@@ -1,5 +1,5 @@
 from cmd import Cmd
-from labview_tools import lab_start_record, lab_stop_record
+from recording_tools import lab_start_record, lab_stop_record
 
 
 class MyPrompt(Cmd):

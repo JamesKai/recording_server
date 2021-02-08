@@ -5,8 +5,8 @@ import pyautogui as pag
 import cv2
 import os
 import time
-from labview_tools import lab_start_record, lab_stop_record
-
+from recording_tools import lab_start_record, lab_stop_record
+import threading
 
 class App(QWidget):
     """Inherit the class Thread"""
@@ -46,11 +46,15 @@ class App(QWidget):
 
     @Slot()
     def start_recording(self):
-        lab_start_record.start_recording()
+        th = threading.Thread(target=lab_start_record.start_recording)
+        th.start()
+        # lab_start_record.start_recording()
 
     @Slot()
     def stop_recording(self):
-        lab_stop_record.stop_recording()
+        th = threading.Thread(target=lab_stop_record.stop_recording)
+        th.start()
+        # lab_stop_record.stop_recording()
 
     @staticmethod
     def take_screenshot():
