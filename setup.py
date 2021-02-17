@@ -8,5 +8,13 @@ setup(
     license='',
     author='James Kai',
     author_email='kai.hsiang.ju@gmail.com',
-    description=''
+    description='',
+    install_requires=[
+    "setuptools",
+    "rpyc",
+    "pyautogui",
+    "opencv-python",
+    "pyside2"
+    "numpy"
+    "python-telegram-bot"]
 )
