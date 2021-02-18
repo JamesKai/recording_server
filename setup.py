@@ -8,6 +8,7 @@ setup(
     license='',
     author='James Kai',
     author_email='kai.hsiang.ju@gmail.com',
+
     description='',
     install_requires=[
     "setuptools",
@@ -17,5 +18,6 @@ setup(
     "pyside2"
     "numpy"
     "python-telegram-bot"]
+
 
 )
