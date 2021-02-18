@@ -19,5 +19,4 @@ setup(
         "pyside2 == 5.15.2",
         "numpy == 1.19.5",
         "python-telegram-bot == 13.2"]
-
 )
