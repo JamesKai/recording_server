@@ -17,4 +17,5 @@ setup(
     "pyside2"
     "numpy"
     "python-telegram-bot"]
+
 )
