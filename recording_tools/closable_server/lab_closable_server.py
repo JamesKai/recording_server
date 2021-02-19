@@ -1,5 +1,9 @@
+import errno
+import sys
 from contextlib import closing
 import socket
+
+from rpyc.lib.compat import get_exc_errno
 from rpyc.utils.authenticators import AuthenticationError
 from rpyc.utils.server import ThreadedServer
 from abc import abstractmethod, ABC
@@ -58,3 +62,27 @@ class RecordingServer(ThreadedServer, Closable):
             self.clients.discard(sock)
             self.continue_or_kill_server()
 
+    def accept(self):
+        """accepts an incoming socket connection (blocking)"""
+        while self.active:
+            try:
+                sock, addrinfo = self.listener.accept()
+                print('okkkkkkkkkkkkkkkk')
+            except socket.timeout:
+                pass
+            except socket.error:
+                ex = sys.exc_info()[1]
+                if get_exc_errno(ex) in (errno.EINTR, errno.EAGAIN):
+                    pass
+                else:
+                    raise EOFError()
+            else:
+                break
+
+        if not self.active:
+            return
+
+        sock.setblocking(True)
+        self.logger.info("accepted %s with fd %s", addrinfo, sock.fileno())
+        self.clients.add(sock)
+        self._accept_method(sock)
