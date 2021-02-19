@@ -22,7 +22,7 @@ class RecordingService(rpyc.Service):
 
         # telegram related
         self.telegram_th = None
-        self.subscribers:List[int] = []
+        self.subscribers: List[int] = []
 
     def on_connect(self, conn):
         # code that runs when a connection is created
@@ -91,8 +91,8 @@ class RecordingService(rpyc.Service):
         # define the codec
         fourcc = cv2.VideoWriter_fourcc(*"DIVX")
         # create the video writer object
-        video_writer = cv2.VideoWriter(r"C:\Users\James\Documents\IAMS\Software Development\ScreenRecord\output.avi"
-                                       , fourcc, self.record_fps, screen_size)
+        video_writer = cv2.VideoWriter(r"C:\Users\James\Documents\IAMS\Software Development\ScreenRecord\output.avi",
+                                       fourcc, self.record_fps, screen_size)
         while self.status:
             # make a screenshot
             img = pag.screenshot()
