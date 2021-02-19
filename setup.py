@@ -9,14 +9,11 @@ setup(
     license='',
     author='James Kai',
     author_email='kai.hsiang.ju@gmail.com',
-
-    description='',
     install_requires=[
         "setuptools == 52.0.0",
         "rpyc == 5.0.1",
         "pyautogui == 0.9.52",
         "opencv-python == 4.5.1.48",
-        "pyside2 == 5.15.2",
         "numpy == 1.19.5",
         "python-telegram-bot == 13.2"]
 )
