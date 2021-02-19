@@ -16,7 +16,7 @@ def start_recording(store_path: str, fps=14, port=18861,
     except ConnectionRefusedError:
         print('Server is not running, start the server now')
         threading.Thread(target=partial(start_server, port)).start()
-        time.sleep(1)
+        time.sleep(0)
         conn = rpyc.connect('localhost', port=port)
     else:
         # check if it is currently recording
