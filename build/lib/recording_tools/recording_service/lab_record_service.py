@@ -50,7 +50,8 @@ class RecordingService(rpyc.Service):
     def exposed_set_flag(self, do_shut_down: bool):
         self.shutdown_service_flag = do_shut_down
 
-    def exposed_start_record(self, store_path: str, fps=None):
+    def exposed_start_record(self, store_path: str,
+                             tele_bot_token, fps=None,):
         self.status = True
         # configure video storage path and frame rate
         self.store_path = store_path
@@ -60,13 +61,14 @@ class RecordingService(rpyc.Service):
         self.record_th = threading.Thread(target=partial(self.record_process, store_path))
         self.record_th.start()
         # telegram related
-        self.telegram_th = threading.Thread(target=telegram_service.start_telegram_service)
+        self.telegram_th = threading.Thread(
+            target=partial(telegram_service.start_telegram_service, tele_bot_token))
         # make it a daemon server
         self.telegram_th.daemon = True
         self.telegram_th.start()
 
-    def exposed_end_record(self):
-        bot = Bot(token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM')
+    def exposed_end_record(self, tele_bot_token):
+        bot = Bot(token=tele_bot_token)
         for sub_id in self.subscribers:
             bot.send_message(chat_id=sub_id, text='end recording')
         self.status = False
@@ -95,7 +97,7 @@ class RecordingService(rpyc.Service):
         return self.subscribers
 
     def record_process(self, store_path: str):
-        pth = Path(store_path,  dt.now().strftime('%Y_%m_%d_%H_%M')+'.avi')
+        pth = Path(store_path, dt.now().strftime('%Y_%m_%d_%H_%M') + '.avi')
         pth_in_str = str(pth)
         # display screen resolution, get it from your OS settings
         screen_size = pag.size()
@@ -117,4 +119,3 @@ class RecordingService(rpyc.Service):
         # releasing all the resources after it is stopped
         video_writer.release()
         cv2.destroyAllWindows()
-
