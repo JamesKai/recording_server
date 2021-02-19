@@ -52,13 +52,9 @@ class RecordingServer(ThreadedServer, Closable):
         finally:
             try:
                 sock.shutdown(socket.SHUT_RDWR)
-            except Exception:
-                pass
+            except Exception as e:
+                print(e)
             closing(sock)
             self.clients.discard(sock)
             self.continue_or_kill_server()
 
-
-if __name__ == '__main__':
-    my_recording_server = RecordingServer(RecordingService(), port=18861)
-    my_recording_server.start()

@@ -37,9 +37,9 @@ def unsubscribe(update, context):
         context.bot.send_message(chat_id=sub_id, text='You are already unsubscribing')
 
 
-def start_telegram_service(service_token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM'):
+def start_telegram_service(tele_bot_token):
 
-    updater = Updater(token=service_token)
+    updater = Updater(token=tele_bot_token)
 
     # dispatcher will automatically be created once updater is set up
     dispatcher = updater.dispatcher
