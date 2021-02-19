@@ -71,11 +71,11 @@ class RecordingServer(ThreadedServer, Closable):
             except socket.timeout:
                 pass
             except socket.error:
-                ex = sys.exc_info()[1]
-                if get_exc_errno(ex) in (errno.EINTR, errno.EAGAIN):
-                    pass
-                else:
-                    raise EOFError()
+                # ex = sys.exc_info()[1]
+                # if get_exc_errno(ex) in (errno.EINTR, errno.EAGAIN):
+                #     pass
+                # else:
+                #     raise EOFError()
             else:
                 break
 
