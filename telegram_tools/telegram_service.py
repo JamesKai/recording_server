@@ -1,9 +1,9 @@
 from telegram.ext import Updater, CommandHandler
 import rpyc
+pt: int = None
 
-
-def connect_recording_service():
-    conn = rpyc.connect('localhost', port=18861)
+def connect_recording_service(port):
+    conn = rpyc.connect('localhost', port=port)
     return conn.root
 
 
@@ -12,13 +12,8 @@ def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
 
 
-def photo(update, context):
-    context.bot.send_photo(chat_id=update.effective_chat.id,
-                           photo=open(r"C:\Users\James\Pictures\Annotation 2020-07-27 160244.jpg", 'rb'))
-
-
 def subscribe(update, context):
-    conn_root = connect_recording_service()
+    conn_root = connect_recording_service(port=pt)
     sub_id = update.effective_chat.id
     if sub_id not in conn_root.get_subscribers():
         conn_root.add_subscribers(sub_id)
@@ -37,8 +32,9 @@ def unsubscribe(update, context):
         context.bot.send_message(chat_id=sub_id, text='You are already unsubscribing')
 
 
-def start_telegram_service(tele_bot_token):
-
+def start_telegram_service(tele_bot_token, port):
+    global pt
+    pt = port 
     updater = Updater(token=tele_bot_token)
 
     # dispatcher will automatically be created once updater is set up
@@ -46,7 +42,6 @@ def start_telegram_service(tele_bot_token):
 
     # create handler
     handlers = [CommandHandler('start', start),
-                CommandHandler('photo', photo),
                 CommandHandler('sub', subscribe),
                 CommandHandler('unsub', unsubscribe)]
     list(map(dispatcher.add_handler, handlers))

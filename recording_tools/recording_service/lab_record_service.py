@@ -51,18 +51,18 @@ class RecordingService(rpyc.Service):
         self.shutdown_service_flag = do_shut_down
 
     def exposed_start_record(self, store_path: str,
-                             tele_bot_token, fps=None,):
+                             tele_bot_token,port, fps=None):
         self.status = True
         # configure video storage path and frame rate
         self.store_path = store_path
         # if record_fps is not given, use default
-        if not fps:
+        if  fps:
             self.record_fps = fps
         self.record_th = threading.Thread(target=partial(self.record_process, store_path))
         self.record_th.start()
         # telegram related
         self.telegram_th = threading.Thread(
-            target=partial(telegram_service.start_telegram_service, tele_bot_token))
+            target=partial(telegram_service.start_telegram_service, tele_bot_token,port ))
         # make it a daemon server
         self.telegram_th.daemon = True
         self.telegram_th.start()
@@ -72,9 +72,9 @@ class RecordingService(rpyc.Service):
         for sub_id in self.subscribers:
             bot.send_message(chat_id=sub_id, text='end recording')
         self.status = False
-        self.record_th.join()
-        # telegram related
-        self.telegram_th.join()
+        # self.record_th.join()
+        # # telegram related
+        # self.telegram_th.join()
 
     def exposed_set_fps(self, val: int) -> str:
         if self.status:

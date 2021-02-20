@@ -16,7 +16,7 @@ def start_recording(store_path: str, fps=14, port=18861,
     except ConnectionRefusedError:
         print('Server is not running, start the server now')
         threading.Thread(target=partial(start_server, port)).start()
-        time.sleep(1)
+        time.sleep(0)
         conn = rpyc.connect('localhost', port=port)
     else:
         # check if it is currently recording
@@ -24,7 +24,7 @@ def start_recording(store_path: str, fps=14, port=18861,
             print('it is already recording')
             return
     # start recording
-    conn.root.start_record(store_path, tele_bot_token, fps=fps)
+    conn.root.start_record(store_path, tele_bot_token, port,fps=fps)
     print('start recording now')
 
 
@@ -36,5 +36,5 @@ def start_server(port):
 
 
 if __name__ == '__main__':
-    start_recording("C:\\Users\\James\\Downloads", fps=1, port=18845,
+    start_recording(r"C:\Users\A416\Desktop", fps=1, port=18845,
                     tele_bot_token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM')
