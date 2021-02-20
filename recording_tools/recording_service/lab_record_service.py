@@ -9,6 +9,7 @@ from telegram import Bot
 from functools import partial
 from pathlib import Path
 from datetime import datetime as dt
+import time
 
 
 # create custom RecordingService
@@ -116,6 +117,7 @@ class RecordingService(rpyc.Service):
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             # write the frame
             video_writer.write(frame)
+            time.sleep(3)
 
         # releasing all the resources after it is stopped
         video_writer.release()
