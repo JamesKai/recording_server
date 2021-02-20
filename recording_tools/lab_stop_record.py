@@ -1,7 +1,7 @@
 import rpyc
 
 
-def stop_recording(port=18861, tele_bot_token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM'):
+def stop_recording(port, tele_bot_token):
     conn = None
     try:
         conn = rpyc.connect('localhost', port=port)
@@ -11,7 +11,7 @@ def stop_recording(port=18861, tele_bot_token='1442643915:AAHvFrdv25saG8Nbl_IN4I
         # check if it is previously recording
         if conn.root.status():
             # start recording
-            conn.root.end_record(tele_bot_token)
+            conn.root.stop_all_services(tele_bot_token)
             print('was recording, stop recording now')
         # kill the server after recording is stopped
         conn.root.set_flag(True)

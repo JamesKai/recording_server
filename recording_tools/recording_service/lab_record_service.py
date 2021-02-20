@@ -51,33 +51,6 @@ class RecordingService(rpyc.Service):
     def exposed_set_flag(self, do_shut_down: bool):
         self.shutdown_service_flag = do_shut_down
 
-    def exposed_start_record(self, store_path: str,
-                             tele_bot_token,port, fps=None):
-        self.status = True
-        # configure video storage path and frame rate
-        self.store_path = store_path
-        # if record_fps is not given, use default
-        if fps:
-            self.record_fps = fps
-        self.record_th = threading.Thread(target=partial(self.record_process, store_path))
-        self.record_th.start()
-        # telegram related
-        self.telegram_th = threading.Thread(
-            target=partial(telegram_service.start_telegram_service, tele_bot_token,port ))
-        # make it a daemon server
-        self.telegram_th.daemon = True
-        self.telegram_th.start()
-
-    def exposed_end_record(self, tele_bot_token):
-        bot = Bot(token=tele_bot_token)
-        for sub_id in self.subscribers:
-            bot.send_message(chat_id=sub_id, text='end recording')
-        self.status = False
-        # record related
-        self.record_th.join()
-        # telegram related
-        self.telegram_th.join()
-
     def exposed_set_fps(self, val: int) -> str:
         if self.status:
             return 'cannot change fps during recording'
@@ -97,6 +70,43 @@ class RecordingService(rpyc.Service):
 
     def exposed_get_subscribers(self):
         return self.subscribers
+
+    def exposed_start_all_services(self, store_path: str, tele_bot_token, port, fps=None):
+        self.start_record(store_path, fps=fps)
+        self.start_telegram(tele_bot_token, port)
+
+    def exposed_end_all_services(self, tele_bot_token):
+        self.stop_telegram(tele_bot_token)
+        self.stop_record()
+
+    def start_record(self, store_path: str, fps=None):
+        self.status = True
+        # configure video storage path and frame rate
+        self.store_path = store_path
+        # if record_fps is not given, use default
+        if fps:
+            self.record_fps = fps
+        self.record_th = threading.Thread(target=partial(self.record_process, store_path))
+        self.record_th.start()
+
+    def start_telegram(self, tele_bot_token, port):
+        # telegram related
+        self.telegram_th = threading.Thread(
+            target=partial(telegram_service.start_telegram_service, tele_bot_token, port))
+        # make it a daemon server
+        self.telegram_th.daemon = True
+        self.telegram_th.start()
+
+    def stop_record(self):
+        self.status = False
+        # record related
+        self.record_th.join()
+
+    def stop_telegram(self, tele_bot_token):
+        bot = Bot(token=tele_bot_token)
+        for sub_id in self.subscribers:
+            bot.send_message(chat_id=sub_id, text='end recording')
+        self.telegram_th.join()
 
     def record_process(self, store_path: str):
         pth = Path(store_path, dt.now().strftime('%Y_%m_%d_%H_%M') + '.avi')

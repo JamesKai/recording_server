@@ -1,15 +1,8 @@
-import errno
-import sys
 from contextlib import closing
 import socket
-
-from rpyc.lib.compat import get_exc_errno
 from rpyc.utils.authenticators import AuthenticationError
 from rpyc.utils.server import ThreadedServer
 from abc import abstractmethod, ABC
-
-# from rpyc.utils.server import ThreadedServer
-from recording_tools.recording_service.lab_record_service import RecordingService
 
 
 class Closable(ABC):
@@ -56,10 +49,8 @@ class RecordingServer(ThreadedServer, Closable):
         finally:
             try:
                 sock.shutdown(socket.SHUT_RDWR)
-            except Exception as e:
+            except Exception:
                 pass
             closing(sock)
             self.clients.discard(sock)
             self.continue_or_kill_server()
-
-   

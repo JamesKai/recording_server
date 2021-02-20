@@ -5,12 +5,10 @@ from functools import partial
 from recording_tools.closable_server.lab_closable_server import RecordingServer
 
 
-def start_recording(store_path: str, fps=14, port=18861,
-                    tele_bot_token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM'):
+def start_recording(store_path: str, fps: float, port: int, tele_bot_token: str):
     print('running...')
     # declare connection object ,this is not needed, stating it here as pycharm cannot resolve the issues
     # of pycharm referencing local variable
-    conn = None
     try:
         conn = rpyc.connect('localhost', port=port)
     except ConnectionRefusedError:
@@ -24,7 +22,7 @@ def start_recording(store_path: str, fps=14, port=18861,
             print('it is already recording')
             return
     # start recording
-    conn.root.start_record(store_path, tele_bot_token, port,fps=fps)
+    conn.root.start_all_services(store_path, tele_bot_token, port, fps=fps)
     print('start recording now')
 
 
