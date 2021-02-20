@@ -56,7 +56,7 @@ class RecordingService(rpyc.Service):
         # configure video storage path and frame rate
         self.store_path = store_path
         # if record_fps is not given, use default
-        if  fps:
+        if fps:
             self.record_fps = fps
         self.record_th = threading.Thread(target=partial(self.record_process, store_path))
         self.record_th.start()
