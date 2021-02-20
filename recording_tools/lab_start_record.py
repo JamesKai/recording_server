@@ -34,5 +34,5 @@ def start_server(port):
 
 
 if __name__ == '__main__':
-    start_recording(r"C:\Users\A416\Desktop", fps=0.2, port=18845,
+    start_recording(r"C:\Users\James\Desktop", fps=5, port=18845,
                     tele_bot_token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM')

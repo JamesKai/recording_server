@@ -75,7 +75,7 @@ class RecordingService(rpyc.Service):
         self.start_record(store_path, fps=fps)
         self.start_telegram(tele_bot_token, port)
 
-    def exposed_end_all_services(self, tele_bot_token):
+    def exposed_stop_all_services(self, tele_bot_token):
         self.stop_telegram(tele_bot_token)
         self.stop_record()
 
