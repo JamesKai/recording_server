@@ -72,9 +72,10 @@ class RecordingService(rpyc.Service):
         for sub_id in self.subscribers:
             bot.send_message(chat_id=sub_id, text='end recording')
         self.status = False
-        # self.record_th.join()
-        # # telegram related
-        # self.telegram_th.join()
+        # record related
+        self.record_th.join()
+        # telegram related
+        self.telegram_th.join()
 
     def exposed_set_fps(self, val: int) -> str:
         if self.status:
