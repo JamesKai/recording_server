@@ -1,6 +1,8 @@
 from telegram.ext import Updater, CommandHandler
 import rpyc
-pt: int = None
+
+pt: int = 18861
+
 
 def connect_recording_service(port):
     conn = rpyc.connect('localhost', port=port)
@@ -34,7 +36,7 @@ def unsubscribe(update, context):
 
 def start_telegram_service(tele_bot_token, port):
     global pt
-    pt = port 
+    pt = port
     updater = Updater(token=tele_bot_token)
 
     # dispatcher will automatically be created once updater is set up
@@ -48,7 +50,3 @@ def start_telegram_service(tele_bot_token, port):
 
     # start the bot
     updater.start_polling(poll_interval=5)
-
-
-if __name__ == '__main__':
-    start_telegram_service()
