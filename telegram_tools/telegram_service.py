@@ -25,7 +25,7 @@ def subscribe(update, context):
 
 
 def unsubscribe(update, context):
-    conn_root = connect_recording_service()
+    conn_root = connect_recording_service(port=pt)
     sub_id = update.effective_chat.id
     if sub_id in conn_root.get_subscribers():
         conn_root.pop_subscribers(sub_id)

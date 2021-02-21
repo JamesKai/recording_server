@@ -5,7 +5,7 @@ from functools import partial
 from recording_tools.closable_server.lab_closable_server import RecordingServer
 
 
-def start_recording(store_path: str, fps: float, port: int, tele_bot_token: str):
+def start_recording(store_path: str, delay_time: float, fps: float, port: int, tele_bot_token: str):
     print('running...')
     # declare connection object ,this is not needed, stating it here as pycharm cannot resolve the issues
     # of pycharm referencing local variable
@@ -22,7 +22,7 @@ def start_recording(store_path: str, fps: float, port: int, tele_bot_token: str)
             print('it is already recording')
             return
     # start recording
-    conn.root.start_all_services(store_path, tele_bot_token, port, fps=fps)
+    conn.root.start_all_services(store_path, tele_bot_token, port, fps, delay_time)
     print('start recording now')
 
 
@@ -34,5 +34,5 @@ def start_server(port):
 
 
 if __name__ == '__main__':
-    start_recording(r"C:\Users\James\Desktop", fps=5, port=18845,
+    start_recording(r"C:\Users\James\Desktop", delay_time=2, fps=0.5, port=18845,
                     tele_bot_token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM')
