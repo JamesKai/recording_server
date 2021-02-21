@@ -5,7 +5,8 @@ import asyncio
 import numpy as np
 import pyautogui as pag
 from telegram_tools import telegram_service
-from typing import List
+from imaging_tools.parsing_text import ParsingText
+from typing import List, Dict
 from telegram import Bot
 from functools import partial
 from pathlib import Path
@@ -14,8 +15,10 @@ from datetime import datetime as dt
 
 # create custom RecordingService
 class RecordingService(rpyc.Service):
-    def __init__(self):
+    def __init__(self, config_obj):
         super(RecordingService, self).__init__()
+        self.config_obj = config_obj
+        print(self.config_obj)
         # declare saving location
         self.store_path = ''
         self.status = False
@@ -33,7 +36,7 @@ class RecordingService(rpyc.Service):
     def on_connect(self, conn):
         # code that runs when a connection is created
         # (to init the service, if needed)
-        print('record server starts')
+        pass
 
     def on_disconnect(self, conn):
         # code that runs after the connection has already closed
@@ -51,35 +54,36 @@ class RecordingService(rpyc.Service):
     def exposed_set_flag(self, do_shut_down: bool):
         self.shutdown_service_flag = do_shut_down
 
-    def exposed_add_subscribers(self, subs_id):
+    def exposed_add_subscribers(self, subs_id: str):
         self.subscribers.append(subs_id)
 
-    def exposed_pop_subscribers(self, subs_id):
+    def exposed_pop_subscribers(self, subs_id: str):
         self.subscribers.remove(subs_id)
 
     def exposed_get_subscribers(self):
         return self.subscribers
 
     def exposed_start_all_services(self, store_path: str, tele_bot_token: str, port: int, fps: float,
-                                   delay_time: float):
-        self.start_record(store_path, delay_time, fps=fps)
+                                   delay_time: float, config):
+        self.start_record(store_path, delay_time, fps, tele_bot_token)
         self.start_telegram(tele_bot_token, port)
 
-    def exposed_stop_all_services(self, tele_bot_token):
+    def exposed_stop_all_services(self, tele_bot_token: str):
         self.stop_telegram(tele_bot_token)
         self.stop_record()
 
-    def start_record(self, store_path: str, delay_time, fps):
+    def start_record(self, store_path: str, delay_time: float, fps: float, tele_bot_token):
         # update the recording status to true
         self.status = True
         # configure video storage path and frame rate
         self.store_path = store_path
         # spawn up a recording thread to handle all the recording related stuff
-        self.record_th = threading.Thread(target=partial(self.record_process, store_path, fps, delay_time))
+        self.record_th = threading.Thread(
+            target=partial(self.record_process, store_path, fps, delay_time, tele_bot_token))
         # starting running the recording thread
         self.record_th.start()
 
-    def start_telegram(self, tele_bot_token, port):
+    def start_telegram(self, tele_bot_token: str, port: int):
         # spawn up a telegram thread to handle all the telegram stuff
         self.telegram_th = threading.Thread(
             target=partial(telegram_service.start_telegram_service, tele_bot_token, port))
@@ -95,21 +99,27 @@ class RecordingService(rpyc.Service):
         # joining recording thread
         self.record_th.join()
 
-    def stop_telegram(self, tele_bot_token):
-        # send message to each subscribers provided that they are subscribing
-        for sub_id in self.subscribers:
-            RecordingService.send_telegram_message(tele_bot_token, sub_id, 'end recording')
+    def stop_telegram(self, tele_bot_token: str):
+        self.send_all_subs(tele_bot_token, message='end recording')
         # joining telegram thread
         self.telegram_th.join()
+
+    def send_all_subs(self, tele_bot_token: str, message: str):
+        # send message to each subscribers provided that they are subscribing
+        for sub_id in self.subscribers:
+            RecordingService.send_telegram_message(tele_bot_token, sub_id, message)
 
     @staticmethod
     def send_telegram_message(tele_bot_token: str, send_to_id: str, message: str):
         bot = Bot(token=tele_bot_token)
+        print(message)
         bot.send_message(chat_id=send_to_id, text=message)
 
-    def record_process(self, store_path: str, fps: float, delay_time: float):
+    def record_process(self, store_path: str, fps: float, delay_time: float, tele_bot_token: str):
         # create video writer
         video_writer = RecordingService.create_video_writer(store_path, fps)
+        # create parsing object
+        parsing = ParsingText(config=self.config_obj)
 
         async def record_task():
             # make a screenshot
@@ -121,15 +131,23 @@ class RecordingService(rpyc.Service):
             # write the frame
             video_writer.write(frame)
 
-        async def delay_task(delay: float):
-            await asyncio.sleep(delay)
+        async def delay_task():
+            await asyncio.sleep(delay_time)
+
+        async def send_info_task():
+            info = parsing.get_all_info()
+            self.send_all_subs(tele_bot_token, message=info.__str__())
 
         async def tasks():
             recording_task = asyncio.create_task(record_task())
-            delaying_task = asyncio.create_task(delay_task(delay_time))
+            delaying_task = asyncio.create_task(delay_task())
+            sending_task = asyncio.create_task(send_info_task())
+            # TODO Add image process task here
             await recording_task
             await delaying_task
+            await sending_task
 
+        # keep recording until the status is off
         while self.status:
             asyncio.run(tasks())
 
