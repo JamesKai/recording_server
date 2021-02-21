@@ -1,28 +1,32 @@
 import threading
-import pyautogui as pag
+import time
 import rpyc
 import cv2
 import numpy as np
+import pyautogui as pag
 from telegram_tools import telegram_service
 from typing import List
 from telegram import Bot
 from functools import partial
 from pathlib import Path
 from datetime import datetime as dt
-import time
+from cv2 import VideoWriter
 
 
 # create custom RecordingService
 class RecordingService(rpyc.Service):
     def __init__(self):
         super(RecordingService, self).__init__()
-        # define saving location of file
+        # declare saving location
         self.store_path = ''
-        print('record server starts')
         self.status = False
         self.record_th = None
         # default record fps to be 14
         self.record_fps = 14
+        '''declare shutting service flag, this variable will be 
+        read by the server's code, every time an incoming connection 
+        is finished, server will check this variable. If found out to be 
+        true, then the server will shut down itself'''
         self.shutdown_service_flag: bool = False
 
         # telegram related
@@ -32,15 +36,12 @@ class RecordingService(rpyc.Service):
     def on_connect(self, conn):
         # code that runs when a connection is created
         # (to init the service, if needed)
-        pass
+        print('record server starts')
 
     def on_disconnect(self, conn):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         pass
-
-    def exposed_get_status(self):
-        return 'Recorder is on' if self.status else 'Recorder is off'
 
     def exposed_status(self):
         return self.status
@@ -48,19 +49,10 @@ class RecordingService(rpyc.Service):
     def exposed_get_flag(self):
         return self.shutdown_service_flag
 
+    '''setter for shutting down the service'''
+
     def exposed_set_flag(self, do_shut_down: bool):
         self.shutdown_service_flag = do_shut_down
-
-    def exposed_set_fps(self, val: int) -> str:
-        if self.status:
-            return 'cannot change fps during recording'
-        if val < 0 or val > 60:
-            return 'cannot be changed, fps limit to 0-60'
-        self.record_fps = val
-        return f'changed fps to {val}'
-
-    def exposed_get_fps(self) -> int:
-        return self.record_fps
 
     def exposed_add_subscribers(self, subs_id):
         self.subscribers.append(subs_id)
@@ -80,44 +72,45 @@ class RecordingService(rpyc.Service):
         self.stop_record()
 
     def start_record(self, store_path: str, fps=None):
+        # update the recording status to true
         self.status = True
         # configure video storage path and frame rate
         self.store_path = store_path
         # if record_fps is not given, use default
         if fps:
             self.record_fps = fps
+        # spawn up a recording thread to handle all the recording related stuff
         self.record_th = threading.Thread(target=partial(self.record_process, store_path))
+        # starting running the recording thread
         self.record_th.start()
 
     def start_telegram(self, tele_bot_token, port):
-        # telegram related
+        # spawn up a telegram thread to handle all the telegram stuff
         self.telegram_th = threading.Thread(
             target=partial(telegram_service.start_telegram_service, tele_bot_token, port))
-        # make it a daemon server
+        # make it a daemon server, a daemon server will automatically close itself once the
+        # main program is finished
         self.telegram_th.daemon = True
+        # starting running the telegram thread
         self.telegram_th.start()
 
     def stop_record(self):
+        # updating the recoding status to false
         self.status = False
-        # record related
+        # joining recording thread
         self.record_th.join()
 
     def stop_telegram(self, tele_bot_token):
         bot = Bot(token=tele_bot_token)
+        # send message to each subscribers provided that they are subscribing
         for sub_id in self.subscribers:
             bot.send_message(chat_id=sub_id, text='end recording')
+        # joining telegram thread
         self.telegram_th.join()
 
     def record_process(self, store_path: str):
-        pth = Path(store_path, dt.now().strftime('%Y_%m_%d_%H_%M') + '.avi')
-        pth_in_str = str(pth)
-        # display screen resolution, get it from your OS settings
-        screen_size = pag.size()
-        # define the codec
-        fourcc = cv2.VideoWriter_fourcc(*"DIVX")
-        # create the video writer object
-        video_writer = cv2.VideoWriter(pth_in_str,
-                                       fourcc, self.record_fps, screen_size)
+        video_writer = self.create_video_writer(store_path)
+
         while self.status:
             # make a screenshot
             img = pag.screenshot()
@@ -129,6 +122,22 @@ class RecordingService(rpyc.Service):
             video_writer.write(frame)
             time.sleep(3)
 
+        RecordingService.clean_up_after_recording(video_writer)
+
+    def create_video_writer(self, store_path: str):
+        pth = Path(store_path, dt.now().strftime('%Y_%m_%d_%H_%M') + '.avi')
+        pth_in_str = str(pth)
+        # display screen resolution, get it from OS settings
+        screen_size = pag.size()
+        # define the codec
+        fourcc = cv2.VideoWriter_fourcc(*"DIVX")
+        # create the video writer object
+        return cv2.VideoWriter(pth_in_str, fourcc, self.record_fps, screen_size)
+
+    @staticmethod
+    def clean_up_after_recording(video_writer: VideoWriter):
         # releasing all the resources after it is stopped
         video_writer.release()
         cv2.destroyAllWindows()
+
+
