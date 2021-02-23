@@ -15,9 +15,10 @@ from datetime import datetime as dt
 
 # create custom RecordingService
 class RecordingService(rpyc.Service):
-    def __init__(self, config_obj):
+    def __init__(self, config_obj, ocr_reader):
         super(RecordingService, self).__init__()
         self.config_obj = config_obj
+        self.ocr_reader = ocr_reader
         print(self.config_obj)
         # declare saving location
         self.store_path = ''
@@ -119,7 +120,8 @@ class RecordingService(rpyc.Service):
         # create video writer
         video_writer = RecordingService.create_video_writer(store_path, fps)
         # create parsing object
-        parsing = ParsingText(config=self.config_obj)
+        parsing = ParsingText(config=self.config_obj, ocr_reader=self.ocr_reader)
+        capture_count = 0
 
         async def record_task():
             # make a screenshot
@@ -135,14 +137,15 @@ class RecordingService(rpyc.Service):
             await asyncio.sleep(delay_time)
 
         async def send_info_task():
-            info = parsing.get_all_info()
-            self.send_all_subs(tele_bot_token, message=info.__str__())
+
+            if capture_count % 2 == 0:
+                info = parsing.get_all_info()
+                self.send_all_subs(tele_bot_token, message=info.__str__())
 
         async def tasks():
             recording_task = asyncio.create_task(record_task())
             delaying_task = asyncio.create_task(delay_task())
             sending_task = asyncio.create_task(send_info_task())
-            # TODO Add image process task here
             await recording_task
             await delaying_task
             await sending_task
@@ -150,6 +153,7 @@ class RecordingService(rpyc.Service):
         # keep recording until the status is off
         while self.status:
             asyncio.run(tasks())
+            capture_count += 1
 
         # clean up video writer
         video_writer.release()
