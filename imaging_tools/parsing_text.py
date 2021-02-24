@@ -3,6 +3,8 @@ import numpy as np
 import cv2
 from typing import Dict
 
+DEFAULT_CONFIDENCE = 0.7
+
 
 class ParsingText:
     def __init__(self, config, ocr_reader):
@@ -22,14 +24,23 @@ class ParsingText:
             return False
         return True
 
+    @staticmethod
+    def is_valid_confidence(confidence):
+        if confidence is None:
+            return False
+        if 1 > confidence > 0:
+            return True
+        return False
+
     def get_info_of(self, item: str) -> str:
         _config = self.config[item]
         # parse the configuration info
-        img, x_off, y_off, new_width, new_height = _config.values()
+        img, confidence, x_off, y_off, new_width, new_height = _config.values()
 
         # read image and get location of image
         try:
-            left, top, width, height = pag.locateOnScreen(img, confidence=0.7)
+            left, top, width, height = pag.locateOnScreen(img, confidence=confidence if ParsingText.is_valid_confidence(
+                confidence) else DEFAULT_CONFIDENCE)
         except TypeError:
             return '-1'
         else:

@@ -32,7 +32,7 @@ def start_recording(store_path: str, delay_time: float, fps: float, port: int, t
             print('it is already recording')
             return
         # start recording
-        conn.root.start_all_services(store_path, tele_bot_token, port, fps, delay_time, config)
+        conn.root.start_all_services(store_path, tele_bot_token, port, fps, delay_time)
         print('start recording now')
 
 
@@ -46,12 +46,21 @@ def start_server(port, config_obj, ocr_reader):
 
 if __name__ == '__main__':
     my_config = {
-        'ID': {
-            'image': r"C:\Users\James\Pictures\Screenshots\8.png",
+        # 'S_ID': {
+        #     'image': r"C:\Users\James\Pictures\Screenshots\8.png",
+        #     'confidence': 0.8,
+        #     'x_offset': 12,
+        #     'y_offset': 47,
+        #     'new_width': 80,
+        #     'new_height': 25
+        # },
+        'L_ID': {
+            'image': r"C:\Users\James\Pictures\Screenshots\Large_ID.png",
+            'confidence': 0.8,
             'x_offset': 12,
-            'y_offset': 47,
-            'new_width': 80,
-            'new_height': 25
+            'y_offset': 42,
+            'new_width': 70,
+            'new_height': 20
         },
     }
     start_recording(r"C:\Users\James\Desktop\Video", delay_time=5, fps=0.2, port=18845,

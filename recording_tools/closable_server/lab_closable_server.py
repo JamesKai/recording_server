@@ -13,8 +13,8 @@ class Closable(ABC):
 
 
 class RecordingServer(ThreadedServer, Closable):
-    def __init__(self, service, port=0):
-        super(ThreadedServer, self).__init__(service, port=port)
+    def __init__(self, service, port=0, protocol_config=None):
+        super(ThreadedServer, self).__init__(service, port=port, protocol_config=protocol_config)
 
     def continue_or_kill_server(self):
         """implementing logic for closing server here"""
