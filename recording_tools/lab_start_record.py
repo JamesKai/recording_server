@@ -16,7 +16,7 @@ def start_recording(store_path: str, delay_time: float, fps: float, port: int, t
     except ConnectionRefusedError:
         print('Server is not running, start the server now')
         # load ocr model into memory, only need to load once, run in another thread
-        ocr_reader = CnOcr()
+        ocr_reader = CnOcr(cand_alphabet=NUMBERS)
         threading.Thread(target=partial(start_server, port, config, ocr_reader)).start()
         _try_connect = True
         while _try_connect:
@@ -48,11 +48,11 @@ def start_server(port, config_obj, ocr_reader):
 if __name__ == '__main__':
     my_config = {
         '1': {
-            'image': r"C:\Users\James\Pictures\Screenshots\7.png",
-            'x_offset': 0,
-            'y_offset': 40,
-            'new_width': 100,
-            'new_height': ''
+            'image': r"C:\Users\James\Pictures\Screenshots\8.png",
+            'x_offset': 12,
+            'y_offset': 47,
+            'new_width': 80,
+            'new_height': 25
         },
     }
     start_recording(r"C:\Users\James\Desktop", delay_time=5, fps=0.2, port=18845,

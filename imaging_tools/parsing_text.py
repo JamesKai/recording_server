@@ -29,7 +29,7 @@ class ParsingText:
 
         # read image and get location of image
         try:
-            left, top, width, height = pag.locateOnScreen(img)
+            left, top, width, height = pag.locateOnScreen(img, confidence=0.7)
         except TypeError:
             return '-1'
         else:
