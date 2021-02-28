@@ -16,4 +16,5 @@ recording_tools/closable_server/lab_closable_server.py
 recording_tools/recording_service/__init__.py
 recording_tools/recording_service/lab_record_service.py
 telegram_tools/__init__.py
+telegram_tools/button_practice.py
 telegram_tools/telegram_service.py
