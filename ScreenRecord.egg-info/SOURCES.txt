@@ -6,6 +6,7 @@ ScreenRecord.egg-info/dependency_links.txt
 ScreenRecord.egg-info/requires.txt
 ScreenRecord.egg-info/top_level.txt
 imaging_tools/__init__.py
+imaging_tools/calculator.py
 imaging_tools/parsing_text.py
 recording_tools/__init__.py
 recording_tools/lab_start_record.py

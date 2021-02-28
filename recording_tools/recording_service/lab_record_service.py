@@ -4,6 +4,8 @@ import cv2
 import asyncio
 import numpy as np
 import pyautogui as pag
+
+from imaging_tools.calculator import Calculator
 from telegram_tools import telegram_service
 from imaging_tools.parsing_text import ParsingText
 from functools import partial
@@ -31,6 +33,11 @@ class RecordingService(rpyc.Service):
         # telegram related
         self.telegram_th = None
         self.exposed_telegram_dispatch = None
+
+        # parsing text related
+        self.exposed_parsing = ParsingText(config_obj, ocr_reader)
+        # calculator related
+        self.exposed_calculator = Calculator(self.exposed_parsing)
 
     def exposed_status(self):
         return self.status
@@ -89,7 +96,6 @@ class RecordingService(rpyc.Service):
         # create video writer
         video_writer = RecordingService.create_video_writer(store_path, fps)
         # create parsing object
-        parsing = ParsingText(config=self.config_obj, ocr_reader=self.ocr_reader)
         capture_count = 0
 
         async def record_task():
@@ -107,8 +113,8 @@ class RecordingService(rpyc.Service):
 
         async def send_info_task():
             if capture_count % 2 == 0:
-                info = parsing.get_all_info()
-                self.exposed_telegram_dispatch.send_all_subs(message=info.__str__())
+                info = self.exposed_parsing.get_all_info()
+                # self.exposed_telegram_dispatch.send_all_subs(message=info.__str__())
 
         async def tasks():
             recording_task = asyncio.create_task(record_task())

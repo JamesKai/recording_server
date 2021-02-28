@@ -46,22 +46,32 @@ def start_server(port, config_obj, ocr_reader):
 
 if __name__ == '__main__':
     my_config = {
+        # this is for smaller screen
         # 'S_ID': {
-        #     'image': r"C:\Users\James\Pictures\Screenshots\8.png",
-        #     'confidence': 0.8,
+        #     'matching_image': r"C:\Users\James\Pictures\Screenshots\8.png",
+        #     'matching_confidence': 0.8,
         #     'x_offset': 12,
         #     'y_offset': 47,
         #     'new_width': 80,
         #     'new_height': 25
         # },
-        'L_ID': {
-            'image': r"C:\Users\James\Pictures\Screenshots\Large_ID.png",
-            'confidence': 0.8,
-            'x_offset': 12,
-            'y_offset': 42,
+        # this is for larger screen
+        'current_label': {
+            'matching_image': r"C:\Users\James\Pictures\Screenshots\current_label.png",
+            'matching_confidence': 0.8,
+            'x_offset': 6,
+            'y_offset': 36,
+            'new_width': 70,
+            'new_height': 20
+        },
+        'total_label': {
+            'matching_image': r"C:\Users\James\Pictures\Screenshots\total_label.png",
+            'matching_confidence': 0.8,
+            'x_offset': 5,
+            'y_offset': 33,
             'new_width': 70,
             'new_height': 20
         },
     }
-    start_recording(r"C:\Users\James\Desktop\Video", delay_time=5, fps=0.2, port=18845,
+    start_recording(r"C:\Users\James\Desktop\Video", delay_time=2, fps=0.5, port=18845,
                     tele_bot_token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM', config=my_config)

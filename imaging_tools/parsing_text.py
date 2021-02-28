@@ -7,13 +7,21 @@ DEFAULT_CONFIDENCE = 0.7
 
 
 class ParsingText:
+
+    def _rpyc_getattr(self, name):
+        if name.startswith("_"):
+            # disallow special and private attributes
+            raise AttributeError("cannot accept private/special names")
+        # allow all other attributes
+        return getattr(self, name)
+
     def __init__(self, config, ocr_reader):
         self.ocr_reader = None
         try:
             self.ocr_reader = ocr_reader
         except Exception:
+            print('ocr reader initializing fail')
             return
-        print(config)
         self.config = config
 
     @staticmethod
@@ -32,8 +40,13 @@ class ParsingText:
             return True
         return False
 
-    def get_info_of(self, item: str) -> str:
-        _config = self.config[item]
+    def get_info_of(self, item: str) -> str or None:
+        try:
+            _config = self.config[item]
+        except KeyError:
+            print(f'{item}: key is not found')
+            return None
+
         # parse the configuration info
         img, confidence, x_off, y_off, new_width, new_height = _config.values()
 
@@ -42,7 +55,7 @@ class ParsingText:
             left, top, width, height = pag.locateOnScreen(img, confidence=confidence if ParsingText.is_valid_confidence(
                 confidence) else DEFAULT_CONFIDENCE)
         except TypeError:
-            return '-1'
+            return None
         else:
             # take screen shot for new location
             info_img_pil = pag.screenshot(
@@ -52,11 +65,15 @@ class ParsingText:
             info_img = cv2.cvtColor(np.array(info_img_pil), cv2.COLOR_RGB2BGR)
             # parse the text from the image
             out_char = self.ocr_reader.ocr_for_single_line(info_img)
-            print(out_char)
+            print(f'{item}: {out_char}')
             # join the string
             out_string = "".join(out_char)
+            try:
+                output = int(out_string)
+            except ValueError:
+                output = out_string
             # return result
-            return out_string
+            return output
 
     def get_all_info(self) -> Dict or str:
         # if ocr_reader cannot be set up in parsing object, stop parsing image
