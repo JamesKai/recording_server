@@ -64,4 +64,4 @@ if __name__ == '__main__':
         },
     }
     start_recording(r"C:\Users\James\Desktop\Video", delay_time=2, fps=0.5, port=18845,
-                    tele_bot_token='1442643915:AAHvFrdv25saG8Nbl_IN4I3BmeOcQdpVdoM', config=my_config)
+                    tele_bot_token='', config=my_config)
