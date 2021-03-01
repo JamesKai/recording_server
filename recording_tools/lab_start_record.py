@@ -46,31 +46,21 @@ def start_server(port, config_obj, ocr_reader):
 
 if __name__ == '__main__':
     my_config = {
-        # this is for smaller screen
-        # 'S_ID': {
-        #     'matching_image': r"C:\Users\James\Pictures\Screenshots\8.png",
-        #     'matching_confidence': 0.8,
-        #     'x_offset': 12,
-        #     'y_offset': 47,
-        #     'new_width': 80,
-        #     'new_height': 25
-        # },
-        # this is for larger screen
         'current_label': {
             'matching_image': r"C:\Users\James\Pictures\Screenshots\current_label.png",
             'matching_confidence': 0.8,
-            'x_offset': 6,
-            'y_offset': 36,
+            'x_offset': 8,
+            'y_offset': 38,
             'new_width': 70,
-            'new_height': 20
+            'new_height': 16
         },
         'total_label': {
             'matching_image': r"C:\Users\James\Pictures\Screenshots\total_label.png",
             'matching_confidence': 0.8,
-            'x_offset': 5,
-            'y_offset': 33,
+            'x_offset': 9,
+            'y_offset': 38,
             'new_width': 70,
-            'new_height': 20
+            'new_height': 18
         },
     }
     start_recording(r"C:\Users\James\Desktop\Video", delay_time=2, fps=0.5, port=18845,
