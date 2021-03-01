@@ -111,19 +111,13 @@ class RecordingService(rpyc.Service):
         async def delay_task():
             await asyncio.sleep(delay_time)
 
-        async def send_info_task():
-            if capture_count % 2 == 0:
-                info = self.exposed_parsing.get_all_info()
-                # self.exposed_telegram_dispatch.send_all_subs(message=info.__str__())
-
         async def tasks():
             recording_task = asyncio.create_task(record_task())
             delaying_task = asyncio.create_task(delay_task())
-            sending_task = asyncio.create_task(send_info_task())
+
             await recording_task
             await delaying_task
-            await sending_task
-
+            
         # keep recording until the status is off
         while self.status:
             asyncio.run(tasks())
