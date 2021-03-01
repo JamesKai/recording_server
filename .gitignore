@@ -7,3 +7,4 @@ build
 dist
 
 /telegram_tools/button_practice.py
+secret.txt
